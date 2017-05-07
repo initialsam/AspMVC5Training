@@ -14,9 +14,9 @@ namespace AspMVC5Training.ViewModel
         public string Name { get; set; }
 
         [IpV4(ErrorMessage ="注意寫這裡沒用")]
-        public IPAddress IpV4 { get; set; }
+        public string IpV4 { get; set; }
 
-        public IPAddress IpV6 { get; set; }
+        public string IpV6 { get; set; }
 
         [EmailAddress]
         public string Email { get; set; }
