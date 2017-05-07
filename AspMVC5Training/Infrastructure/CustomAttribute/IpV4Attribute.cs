@@ -51,7 +51,7 @@ namespace AspMVC5Training.Infrastructure.CustomAttribute
             //rule.ErrorMessage = FormatErrorMessage("IpV4格式錯誤");
 
             // 前端顯示 : IpV4格式錯誤
-            //rule.ErrorMessage = "IpV4格式錯誤";
+            rule.ErrorMessage = "IpV4格式錯誤";
 
             yield return rule;
         }
