@@ -18,8 +18,10 @@ namespace AspMVC5Training.ViewModel
         public string IpV4 { get; set; }
 
         //[Remote("IpV6", "Verification", ErrorMessage = "IpV6有問題喔 請在檢查看看")]
-        [Remote("IpV6", "Valid", "Tools", ErrorMessage = "IpV6有問題喔 請在檢查看看")]
-        
+        //[Remote("IpV6", "Valid", "Tools", ErrorMessage = "IpV6有問題喔 請在檢查看看")]
+        [Remote("IpV6", "Valid", "Tools", HttpMethod = "POST", 
+            AdditionalFields = "Name,IpV4",ErrorMessage = "IpV6有問題喔 請在檢查看看")]
+
         public string IpV6 { get; set; }
 
         [EmailAddress]
