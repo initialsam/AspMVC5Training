@@ -1,5 +1,6 @@
 ﻿using AspMVC5Training.ViewModel;
 using Newtonsoft.Json;
+using Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,9 @@ namespace AspMVC5Training.Controllers
         // GET: Data
         public ActionResult Index()
         {
+            var a = new GoodsContext();
+            var cars = a.Cars.Where(x => x.Name.StartsWith("S"));
+
             return View();
         }
 
