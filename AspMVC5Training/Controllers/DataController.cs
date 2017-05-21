@@ -12,6 +12,7 @@ using System.Web.Mvc;
 
 namespace AspMVC5Training.Controllers
 {
+    [Authorize]
     public class DataController : Controller
     {
         private TraceSource traceSource = new TraceSource("AspMVC5Training");
