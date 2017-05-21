@@ -80,7 +80,20 @@ namespace AspMVC5Training.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    Age = model.Age
+                };
+                user.Addresses.Add(new Address
+                {
+                    AddressLine = model.AddressLine,
+                    Country = model.Country,
+                    UserId = user.Id
+                });
+
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -95,6 +108,37 @@ namespace AspMVC5Training.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // 這不會計算為帳戶鎖定的登入失敗
+            // 若要啟用密碼失敗來觸發帳戶鎖定，請變更為 shouldLockout: true
+            var result = await SignInManager.PasswordSignInAsync(
+                                model.Email, 
+                                model.Password, 
+                                model.RememberMe, 
+                                shouldLockout: false);
+            switch (result)
+            {
+                case SignInStatus.Success:
+                    return RedirectToLocal(returnUrl);
+                case SignInStatus.LockedOut:
+                    return View("Lockout");
+                case SignInStatus.RequiresVerification:
+                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                case SignInStatus.Failure:
+                default:
+                    ModelState.AddModelError("", "登入嘗試失試。");
+                    return View(model);
+            }
+        }
 
         private void AddErrors(IdentityResult result)
         {
@@ -102,6 +146,15 @@ namespace AspMVC5Training.Controllers
             {
                 ModelState.AddModelError("", error);
             }
+        }
+
+        private ActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Account

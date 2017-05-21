@@ -19,5 +19,24 @@ namespace AspMVC5Training.ViewModel
         [Display(Name = "確認密碼")]
         [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "密碼和確認密碼不相符。")]
         public string ConfirmPassword { get; set; }
+
+        [Required]
+        [Display(Name = "全名")]
+        public string FullName { get; set; }
+
+        [Required]
+        [Display(Name = "地址")]
+        public string AddressLine { get; set; }
+
+        [Required]
+        [Display(Name = "國籍")]
+        public string Country { get; set; }
+
+        [Required]
+        [Display(Name = "年齡")]
+        [Range(1,200)]
+        public int Age { get; set; }
+
+        
     }
 }

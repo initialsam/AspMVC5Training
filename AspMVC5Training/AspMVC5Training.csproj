@@ -223,6 +223,16 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\CustomAttribute\IpV4Attribute.cs" />
+    <Compile Include="Migrations\201705210921047_InitialCreate.cs" />
+    <Compile Include="Migrations\201705210921047_InitialCreate.Designer.cs">
+      <DependentUpon>201705210921047_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201705210940196_Add_Age.cs" />
+    <Compile Include="Migrations\201705210940196_Add_Age.Designer.cs">
+      <DependentUpon>201705210940196_Add_Age.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Address.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -312,6 +322,14 @@
       <Project>{62554E55-D3E6-41BD-A5C7-5AC7EAC17F9B}</Project>
       <Name>Repository</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201705210921047_InitialCreate.resx">
+      <DependentUpon>201705210921047_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201705210940196_Add_Age.resx">
+      <DependentUpon>201705210940196_Add_Age.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
