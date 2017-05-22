@@ -43,6 +43,8 @@ namespace AspMVC5Training.App_Start
                 RequireUniqueEmail = true
             };
 
+         
+
             // 設定密碼的驗證邏輯
             manager.PasswordValidator = new PasswordValidator
             {
@@ -60,17 +62,17 @@ namespace AspMVC5Training.App_Start
 
             // 註冊雙因素驗證提供者。此應用程式使用手機和電子郵件接收驗證碼以驗證使用者
             // 您可以撰寫專屬提供者，並將它外掛到這裡。
-            manager.RegisterTwoFactorProvider("電話代碼", new PhoneNumberTokenProvider<ApplicationUser>
-            {
-                MessageFormat = "您的安全碼為 {0}"
-            });
+            //manager.RegisterTwoFactorProvider("電話代碼", new PhoneNumberTokenProvider<ApplicationUser>
+            //{
+            //    MessageFormat = "您的安全碼為 {0}"
+            //});
             manager.RegisterTwoFactorProvider("電子郵件代碼", new EmailTokenProvider<ApplicationUser>
             {
                 Subject = "安全碼",
                 BodyFormat = "您的安全碼為 {0}"
             });
             manager.EmailService = new EmailService();
-            manager.SmsService = new SmsService();
+            //manager.SmsService = new SmsService();
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)
             {
@@ -99,7 +101,9 @@ namespace AspMVC5Training.App_Start
             IdentityFactoryOptions<ApplicationSignInManager> options,
             IOwinContext context)
         {
-            return new ApplicationSignInManager(context.GetUserManager<ApplicationUserManager>(), context.Authentication);
+            return new ApplicationSignInManager(
+                context.GetUserManager<ApplicationUserManager>(), 
+                context.Authentication);
         }
     }
 
