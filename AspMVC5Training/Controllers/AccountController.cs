@@ -97,8 +97,13 @@ namespace AspMVC5Training.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                    return RedirectToAction("Index", "Account");
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+                    return View("ShowEmail");
+
+                    //await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                    //return RedirectToAction("Index", "Account");
                 }
                 
                 AddErrors(result);
@@ -117,14 +122,17 @@ namespace AspMVC5Training.Controllers
             {
                 return View(model);
             }
-
+            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
             // 這不會計算為帳戶鎖定的登入失敗
             // 若要啟用密碼失敗來觸發帳戶鎖定，請變更為 shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(
-                                model.Email, 
-                                model.Password, 
-                                model.RememberMe, 
-                                shouldLockout: false);
+                                model.Email,
+                                model.Password,
+                                model.RememberMe,
+                                shouldLockout: true);
+
+          
+
             switch (result)
             {
                 case SignInStatus.Success:

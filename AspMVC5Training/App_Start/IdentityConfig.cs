@@ -11,6 +11,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using AspMVC5Training.Models;
+using System.Net.Mail;
 
 namespace AspMVC5Training.App_Start
 {
@@ -26,7 +27,7 @@ namespace AspMVC5Training.App_Start
         }
 
         public static ApplicationUserManager Create(
-            IdentityFactoryOptions<ApplicationUserManager> options, 
+            IdentityFactoryOptions<ApplicationUserManager> options,
             IOwinContext context)
         {
             var manager = new ApplicationUserManager(
@@ -83,7 +84,7 @@ namespace AspMVC5Training.App_Start
     public class ApplicationSignInManager : SignInManager<ApplicationUser, string>
     {
         public ApplicationSignInManager(
-            ApplicationUserManager userManager, 
+            ApplicationUserManager userManager,
             IAuthenticationManager authenticationManager)
             : base(userManager, authenticationManager)
         {
@@ -95,7 +96,7 @@ namespace AspMVC5Training.App_Start
         }
 
         public static ApplicationSignInManager Create(
-            IdentityFactoryOptions<ApplicationSignInManager> options, 
+            IdentityFactoryOptions<ApplicationSignInManager> options,
             IOwinContext context)
         {
             return new ApplicationSignInManager(context.GetUserManager<ApplicationUserManager>(), context.Authentication);
@@ -107,17 +108,47 @@ namespace AspMVC5Training.App_Start
     {
         public Task SendAsync(IdentityMessage message)
         {
-            // 將您的電子郵件服務外掛到這裡以傳送電子郵件。
-            return Task.FromResult(0);
+            return SendMailByGmail(new List<string>() { message.Destination }, message.Subject, message.Body);
         }
-    }
 
-    public class SmsService : IIdentityMessageService
-    {
-        public Task SendAsync(IdentityMessage message)
+        private Task SendMailByGmail(List<string> MailList, string Subject, string Body)
         {
-            // 將您的 SMS 服務外掛到這裡以傳送簡訊。
-            return Task.FromResult(0);
+            MailMessage msg = new MailMessage();
+            //收件者，以逗號分隔不同收件者 ex "test@gmail.com,test2@gmail.com"
+            msg.To.Add(string.Join(",", MailList.ToArray()));
+            msg.From = new MailAddress("sam@pixis.com.tw", "測試郵件", System.Text.Encoding.UTF8);
+            //郵件標題 
+            msg.Subject = Subject;
+            //郵件標題編碼  
+            msg.SubjectEncoding = System.Text.Encoding.UTF8;
+            //郵件內容
+            msg.Body = Body;
+            msg.IsBodyHtml = true;
+            msg.BodyEncoding = System.Text.Encoding.UTF8;//郵件內容編碼 
+            msg.Priority = MailPriority.Normal;//郵件優先級 
+                                               //建立 SmtpClient 物件 並設定 Gmail的smtp主機及Port 
+            #region 其它 Host
+            /*
+             *  outlook.com smtp.live.com port:25
+             *  yahoo smtp.mail.yahoo.com.tw port:465
+            */
+            #endregion
+            SmtpClient MySmtp = new SmtpClient("smtp.gmail.com", 587);
+            //設定你的帳號密碼
+            MySmtp.Credentials = new System.Net.NetworkCredential("sam@pixis.com.tw", "ggghhh@@");
+            //Gmial 的 smtp 使用 SSL
+            MySmtp.EnableSsl = true;
+            return MySmtp.SendMailAsync(msg);
         }
     }
 }
+
+public class SmsService : IIdentityMessageService
+{
+    public Task SendAsync(IdentityMessage message)
+    {
+        // 將您的 SMS 服務外掛到這裡以傳送簡訊。
+        return Task.FromResult(0);
+    }
+}
+

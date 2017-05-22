@@ -45,9 +45,14 @@ namespace AspMVC5Training.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            var address = modelBuilder.Entity<Address>();
-            address.ToTable("AspNetUserAddresses");
-            address.HasKey(x => x.Id);
+            modelBuilder.Entity<ApplicationUser>().ToTable("Account");
+            modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+            modelBuilder.Entity<IdentityUserRole>().ToTable("AccountRoles");
+            modelBuilder.Entity<IdentityUserLogin>().ToTable("AccountLogins");
+            modelBuilder.Entity<IdentityUserClaim>().ToTable("AccountClaims");
+            modelBuilder.Entity<Address>().ToTable("AccountAddress");
+
+            modelBuilder.Entity<Address>().HasKey(x => x.Id);
 
             var user = modelBuilder.Entity<ApplicationUser>();
             user.Property(x => x.FullName).IsRequired().HasMaxLength(256)
