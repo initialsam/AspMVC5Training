@@ -13,6 +13,8 @@ using AspMVC5Training.App_Start;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.ComponentModel.DataAnnotations;
 using AspMVC5Training.ViewModel;
+using OtpSharp;
+using Base32;
 
 namespace AspMVC5Training.Controllers
 {
@@ -227,6 +229,46 @@ namespace AspMVC5Training.Controllers
             }
         }
 
+        public async Task<ActionResult> EnableGoogleAuthenticator()
+        {
+            byte[] secretKey = KeyGeneration.GenerateRandomKey(20);
+            string userName = User.Identity.GetUserName();
+            string barcodeUrl = KeyUrl.GetTotpUrl(secretKey, userName) + "&issuer=MySuperApplication";
+
+            var model = new GoogleAuthenticatorViewModel
+            {
+                SecretKey = Base32Encoder.Encode(secretKey),
+                BarcodeUrl = HttpUtility.UrlEncode(barcodeUrl)
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> EnableGoogleAuthenticator(GoogleAuthenticatorViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                byte[] secretKey = Base32Encoder.Decode(model.SecretKey);
+
+                long timeStepMatched = 0;
+                var otp = new Totp(secretKey);
+                if (otp.VerifyTotp(model.Code, out timeStepMatched, new VerificationWindow(2, 2)))
+                {
+                    var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+                    user.IsGoogleAuthenticatorEnabled = true;
+                    user.GoogleAuthenticatorSecretKey = model.SecretKey;
+                    await UserManager.UpdateAsync(user);
+
+                    return RedirectToAction("Index", "Manage");
+                }
+                else
+                    ModelState.AddModelError("Code", "The Code is not valid");
+            }
+
+            return View(model);
+        }
+
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
@@ -284,4 +326,6 @@ namespace AspMVC5Training.Controllers
 
       
     }
+
+
 }

@@ -12,6 +12,8 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using AspMVC5Training.Models;
 using System.Net.Mail;
+using Base32;
+using OtpSharp;
 
 namespace AspMVC5Training.App_Start
 {
@@ -43,7 +45,7 @@ namespace AspMVC5Training.App_Start
                 RequireUniqueEmail = true
             };
 
-         
+
 
             // 設定密碼的驗證邏輯
             manager.PasswordValidator = new PasswordValidator
@@ -71,6 +73,9 @@ namespace AspMVC5Training.App_Start
                 Subject = "安全碼",
                 BodyFormat = "您的安全碼為 {0}"
             });
+
+            manager.RegisterTwoFactorProvider("GoogleAuthenticator", new GoogleAuthenticatorTokenProvider());
+
             manager.EmailService = new EmailService();
             //manager.SmsService = new SmsService();
             var dataProtectionProvider = options.DataProtectionProvider;
@@ -102,7 +107,7 @@ namespace AspMVC5Training.App_Start
             IOwinContext context)
         {
             return new ApplicationSignInManager(
-                context.GetUserManager<ApplicationUserManager>(), 
+                context.GetUserManager<ApplicationUserManager>(),
                 context.Authentication);
         }
     }
@@ -143,6 +148,36 @@ namespace AspMVC5Training.App_Start
             //Gmial 的 smtp 使用 SSL
             MySmtp.EnableSsl = true;
             return MySmtp.SendMailAsync(msg);
+        }
+
+        
+    }
+
+    public class GoogleAuthenticatorTokenProvider : IUserTokenProvider<ApplicationUser, string>
+    {
+        public Task<string> GenerateAsync(string purpose, UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            return Task.FromResult((string)null);
+        }
+
+        public Task<bool> ValidateAsync(string purpose, string token, UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            long timeStepMatched = 0;
+
+            var otp = new Totp(Base32Encoder.Decode(user.GoogleAuthenticatorSecretKey));
+            bool valid = otp.VerifyTotp(token, out timeStepMatched, new VerificationWindow(2, 2));
+
+            return Task.FromResult(valid);
+        }
+
+        public Task NotifyAsync(string token, UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> IsValidProviderForUserAsync(UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            return Task.FromResult(user.IsGoogleAuthenticatorEnabled);
         }
     }
 }

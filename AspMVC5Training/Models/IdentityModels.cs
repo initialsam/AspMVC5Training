@@ -22,6 +22,8 @@ namespace AspMVC5Training.Models
         public int Age { get; set; }
         public string FullName { get; set; }
         public virtual ICollection<Address> Addresses { get; private set; }
+        public bool IsGoogleAuthenticatorEnabled { get; set; }
+        public string GoogleAuthenticatorSecretKey { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
